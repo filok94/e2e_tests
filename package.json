@@ -1,0 +1,17 @@
+{
+	"name": "api_tests",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "npx playwright test"
+	},
+	"author": "f.gareev",
+	"license": "ISC",
+	"devDependencies": {
+		"@playwright/test": "^1.27.1"
+	},
+	"dependencies": {
+		"dotenv": "^16.0.3"
+	}
+}

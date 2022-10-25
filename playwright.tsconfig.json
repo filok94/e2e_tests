@@ -1,0 +1,13 @@
+{
+	"extends": "../path/to/base/tsconfig.json",
+	"compilerOptions": {
+		"noEmit": true,
+		"paths": {
+			"~": ["./tests"],
+			"~*": ["./tests/*"]
+		},
+		"baseUrl": ".",
+		"rootUrl": "."
+	},
+	"include": ["tests/**/*.ts", "api/*.ts"]
+}
