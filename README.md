@@ -10,25 +10,25 @@ https://github.com/filok94/api_hand is node.js nest project with mongodb as data
 
 ### Dependencies
 
-* playwright 1.27.1
-* mongodb 4.11
+- playwright 1.27.1
+- mongodb 4.11
 
 ### Executing program
 
-* To start test add .env file
-* Install dependencies
-*
+- To start test add .env file
+- Install dependencies
+
 ```
 npm i
 ```
-*
+
+- run test
+
 ```
 npm run test
 ```
 
 ## Authors
-
-Contributors names and contact info
 
 ex. filok94
 
