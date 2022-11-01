@@ -1,8 +1,11 @@
+import * as bcrypt from "bcrypt";
+import { ObjectId } from "mongodb";
 import { generator } from "../helpers/generator";
 
 const { randomString } = generator();
 
 export class User {
+	id: ObjectId;
 	constructor(
 		public login: string | null = null,
 		public password: string | null = null,
@@ -10,12 +13,17 @@ export class User {
 	) {
 		this.login = login ? login : randomString();
 		this.password = password ? password : randomString();
+		this.id = null;
 	}
 
-	getAuthJson() {
+	getAuthJson = () => {
 		return JSON.stringify({
 			login: this.login,
 			password: this.password,
 		});
-	}
+	};
+
+	getHashPassword = async () => await bcrypt.hash(this.password, 12);
+
+	setId = (id: ObjectId) => (this.id = id);
 }

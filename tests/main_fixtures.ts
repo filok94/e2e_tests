@@ -1,16 +1,15 @@
-import { DBUsers } from "../db/db_users";
 import { test as base } from "@playwright/test";
-import { User } from "../models/user";
+import { DBUsers } from "../db/db_users";
 import { generator } from "../helpers/generator";
+import { User } from "../models/user";
 type MyFixtures = {
-	userCreation: User;
+	userCreation: User[];
 };
 
 export const test = base.extend<MyFixtures>({
 	userCreation: async ({}, use) => {
 		const { randomString } = generator();
-		// Set up the fixture.
-		const main_user = new User(
+		const mainUser = new User(
 			`autoqa-${randomString(5)}`,
 			`autoqa-${randomString(5)}`,
 			false
@@ -20,13 +19,20 @@ export const test = base.extend<MyFixtures>({
 			`autoqa-admin-${randomString(5)}`,
 			true
 		);
-		await new DBUsers().addUsers([main_user, adminUser]);
+		console.log(
+			`creating users...\n\tadmin: ${adminUser.login},\n\tmain: ${mainUser.login}`
+		);
+		// pass here setup fixture
+		const ids = await new DBUsers().addUsers([mainUser, adminUser]);
+		mainUser.setId(ids[0]);
+		adminUser.setId(ids[1]);
 
-		// Use the fixture value in the test.
-		await use(main_user);
-
-		// Clean up the fixture.
-		await new DBUsers().deleteUsers([main_user, adminUser]);
+		console.log("testing...");
+		await use([mainUser]);
+		console.log("Teardown fixtures start...");
+		// pass here teardown fixture
+		await new DBUsers().deleteUsers([mainUser, adminUser]);
+		console.log("Teardown fixtures complete");
 	},
 });
 export { expect } from "@playwright/test";

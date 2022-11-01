@@ -1,9 +1,13 @@
-import { ExceptionStrings } from "./../helpers/exception_strings";
+import { expect, test } from "../api/api.auth";
 import { generator } from "../helpers/generator";
-import { test, expect } from "../api/api.auth";
+import { ExceptionStrings } from "./../helpers/exception_strings";
+import { Tokens } from "./../models/tokens";
 
-test("sign_in with wrong credentials", async ({ userCreation, apiAuth }) => {
-	const user = userCreation;
+test("test sign_in with wrong credentials", async ({
+	userCreation,
+	apiAuth,
+}) => {
+	const [user] = userCreation;
 	for (let data of [
 		{ login: user.login, password: `${user.password}-wrong` },
 		{ login: `${user.login}-wrong`, password: user.password },
@@ -15,9 +19,9 @@ test("sign_in with wrong credentials", async ({ userCreation, apiAuth }) => {
 	}
 });
 
-test("sign_in validation checks", async ({ userCreation, apiAuth }) => {
+test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 	const { randomString } = generator();
-	const user = userCreation;
+	const [user] = userCreation;
 	const userLowPassword = randomString(7);
 	const userLargePassword = randomString(256);
 	const userLowLogin = randomString(5);
@@ -125,4 +129,25 @@ test("sign_in validation checks", async ({ userCreation, apiAuth }) => {
 	expect(json.message[0]).toBe(
 		ExceptionStrings.PROPERTY_SHOULD_NOT_EXIST("extra_field")
 	);
+});
+
+test("test sign_in", async ({ userCreation, apiAuth }) => {
+	//STEP: sign in with good credentials
+	const [user] = userCreation;
+	const response = await apiAuth.signIn({
+		login: user.login,
+		password: user.password,
+	});
+	//RESULT: 200, access_token/refresh_token/user_id
+	const json: Tokens = await response.json();
+	const tokens = new Tokens(json.access_token, json.refresh_token, json.user);
+	const tokensJWT = tokens.getJWTInfo();
+	expect(response.status()).toBe(200);
+	for (let value of Object.values(tokens)) {
+		expect(typeof value).toBe("string");
+	}
+	expect(String(tokensJWT.userId)).toBe(String(user.id));
+	expect(tokensJWT.exp).toBeGreaterThan(Date.now() / 1000);
+	const currentDateWithExpirationTime = Date.now() / 1000 + 900;
+	expect(tokensJWT.exp).toBeLessThanOrEqual(currentDateWithExpirationTime);
 });
