@@ -1,5 +1,5 @@
 import { APIRequestContext, APIResponse } from "@playwright/test";
-import { test as base, expect } from "../tests/main_fixtures";
+import { expect, test as base } from "../tests/main_fixtures";
 
 export const AUTH_URLS = {
 	signIn: `auth/sign_in`,
@@ -27,6 +27,11 @@ class ApiAuth {
 		data: { login: string; password: string } | object
 	): Promise<APIResponse> {
 		return await this.request.post(AUTH_URLS.signIn, { data });
+	}
+	async signUp(
+		data: { login: string; password: string } | object
+	): Promise<APIResponse> {
+		return await this.request.post(AUTH_URLS.signUp, { data });
 	}
 }
 
