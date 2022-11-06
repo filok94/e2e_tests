@@ -1,11 +1,10 @@
 export class ExceptionStrings {
-	static BAD_REQUEST = "Bad request";
-	static ALREADY_IN_USE = "Already in use";
 	static WRONG_USER_OR_PASSWORD = "Wrong login or password";
+	static INVALID_USER_OR_PASSWORD = "invalid user or password";
 	static DUPLICATES = "duplicates existing";
-	static NOT_FOUND = "Not found";
 	static PERSON_NOT_FOUND = "One of persons not found";
 	static LENGTH_IS_BAD = "length is bad";
+	static TOKEN_EXPIRED = "token has expired";
 	static CANNOT_FIND_GAME = "Cannot find game by this id";
 	static CANNOT_FIND_AVATAR = "Cannot find avatar with this id";
 	static CANNOT_FIND_PERSON = "Cannot find person with this id";
@@ -16,19 +15,16 @@ export class ExceptionStrings {
 	static WRONG_QUESTION_DATA = "wrong questions data";
 	static WRONG_GAME_ID = "wrong game id";
 	static CANNOT_FIND_RESULTS = "user have no results on this game";
-	static PASSWORD_MUST_BE_LONGER =
-		"password must be longer than or equal to 8 characters";
-	static PASSWORD_MUST_BE_SHORTER =
-		"password must be shorter than or equal to 255 characters";
-	static LOGIN_MUST_BE_LONGER =
-		"login must be longer than or equal to 6 characters";
-	static LOGIN_MUST_BE_SHORTER =
-		"login must be shorter than or equal to 20 characters";
-	static LOGIN_MUST_BE_A_STRING = "login must be a string";
-	static PASSWORD_MUST_BE_A_STRING = "password must be a string";
-	static PASSWORD_SHOULD_NOT_BE_EMPTY = "password should not be empty";
-	static LOGIN_SHOULD_NOT_BE_EMPTY = "login should not be empty";
-	static PROPERTY_SHOULD_NOT_EXIST = (property: string) =>
+	static MUST_BE_LONGER = (property: string, longerThan: number) =>
+		`${property} must be longer than or equal to ${longerThan} characters`;
+	static MUST_BE_SHORTER = (property: string, shorterThan: number) =>
+		`${property} must be shorter than or equal to ${shorterThan} characters`;
+	static SHOULD_NOT_EXIST = (property: string) =>
 		`property ${property} should not exist`;
-	static INVALID_USER_OR_PASSWORD = "invalid user or password";
+	static SHOULD_NOT_BE_EMPTY = (property: string) =>
+		`${property} should not be empty`;
+	static MUST_BE_A_STRING = (property: string) =>
+		`${property} must be a string`;
+	static MUST_BE_A_JWT = (property: string) =>
+		`${property} must be a jwt string`;
 }

@@ -1,3 +1,4 @@
+import * as bcrypt from "bcrypt";
 import { ObjectId } from "mongodb";
 import { expect, test as base } from "../api/api.auth";
 import { ExceptionStrings } from "../helpers/exception_strings";
@@ -48,7 +49,7 @@ test("test sign_up validation", async ({ apiAuth }) => {
 	// RESULT: 400
 	let json = await response.json();
 	expect(response.status()).toBe(400);
-	expect(json.message[0]).toBe(ExceptionStrings.PASSWORD_MUST_BE_LONGER);
+	expect(json.message[0]).toBe(ExceptionStrings.MUST_BE_LONGER("password", 8));
 
 	// STEP: password length > 255
 	response = await apiAuth.signUp({
@@ -58,7 +59,9 @@ test("test sign_up validation", async ({ apiAuth }) => {
 	// RESULT: 400
 	json = await response.json();
 	expect(response.status()).toBe(400);
-	expect(json.message[0]).toBe(ExceptionStrings.PASSWORD_MUST_BE_SHORTER);
+	expect(json.message[0]).toBe(
+		ExceptionStrings.MUST_BE_SHORTER("password", 255)
+	);
 
 	// STEP: login length < 6
 	response = await apiAuth.signUp({
@@ -68,7 +71,7 @@ test("test sign_up validation", async ({ apiAuth }) => {
 	// RESULT: 400
 	json = await response.json();
 	expect(response.status()).toBe(400);
-	expect(json.message[0]).toBe(ExceptionStrings.LOGIN_MUST_BE_LONGER);
+	expect(json.message[0]).toBe(ExceptionStrings.MUST_BE_LONGER("login", 6));
 
 	// STEP: login length > 20
 	response = await apiAuth.signUp({
@@ -78,7 +81,7 @@ test("test sign_up validation", async ({ apiAuth }) => {
 	// RESULT: 400
 	json = await response.json();
 	expect(response.status()).toBe(400);
-	expect(json.message[0]).toBe(ExceptionStrings.LOGIN_MUST_BE_SHORTER);
+	expect(json.message[0]).toBe(ExceptionStrings.MUST_BE_SHORTER("login", 20));
 
 	// STEP: login not string type values
 	const badValues = [null, 1, true, { login: "login" }, ["login"]];
@@ -90,7 +93,7 @@ test("test sign_up validation", async ({ apiAuth }) => {
 		// RESULT: 400
 		json = await response.json();
 		expect(response.status()).toBe(400);
-		expect(json.message[0]).toBe(ExceptionStrings.LOGIN_MUST_BE_A_STRING);
+		expect(json.message[0]).toBe(ExceptionStrings.MUST_BE_A_STRING("login"));
 	}
 
 	// STEP: password not string type values
@@ -102,17 +105,17 @@ test("test sign_up validation", async ({ apiAuth }) => {
 		// RESULT: 400
 		json = await response.json();
 		expect(response.status()).toBe(400);
-		expect(json.message[0]).toBe(ExceptionStrings.PASSWORD_MUST_BE_A_STRING);
+		expect(json.message[0]).toBe(ExceptionStrings.MUST_BE_A_STRING("password"));
 	}
 
 	//STEP: no password given
 	response = await apiAuth.signUp({ login: userLogin });
 	//RESULT: 400
 	const validatePasswordStrings = [
-		ExceptionStrings.PASSWORD_MUST_BE_LONGER,
-		ExceptionStrings.PASSWORD_MUST_BE_SHORTER,
-		ExceptionStrings.PASSWORD_MUST_BE_A_STRING,
-		ExceptionStrings.PASSWORD_SHOULD_NOT_BE_EMPTY,
+		ExceptionStrings.MUST_BE_LONGER("password", 8),
+		ExceptionStrings.MUST_BE_SHORTER("password", 255),
+		ExceptionStrings.MUST_BE_A_STRING("password"),
+		ExceptionStrings.SHOULD_NOT_BE_EMPTY("password"),
 	];
 	json = await response.json();
 	expect(response.status()).toBe(400);
@@ -122,10 +125,10 @@ test("test sign_up validation", async ({ apiAuth }) => {
 	response = await apiAuth.signUp({ password: userPassword });
 	//RESULT: 400
 	const validateLoginStrings = [
-		ExceptionStrings.LOGIN_MUST_BE_LONGER,
-		ExceptionStrings.LOGIN_MUST_BE_SHORTER,
-		ExceptionStrings.LOGIN_MUST_BE_A_STRING,
-		ExceptionStrings.LOGIN_SHOULD_NOT_BE_EMPTY,
+		ExceptionStrings.MUST_BE_LONGER("login", 6),
+		ExceptionStrings.MUST_BE_SHORTER("login", 20),
+		ExceptionStrings.MUST_BE_A_STRING("login"),
+		ExceptionStrings.SHOULD_NOT_BE_EMPTY("login"),
 	];
 	json = await response.json();
 	expect(response.status()).toBe(400);
@@ -141,7 +144,7 @@ test("test sign_up validation", async ({ apiAuth }) => {
 	json = await response.json();
 	expect(response.status()).toBe(400);
 	expect(json.message[0]).toBe(
-		ExceptionStrings.PROPERTY_SHOULD_NOT_EXIST("extra_field")
+		ExceptionStrings.SHOULD_NOT_EXIST("extra_field")
 	);
 });
 
@@ -163,10 +166,23 @@ test("sign_up with new user", async ({ apiAuth, deletion }) => {
 	for (let value of Object.values(json)) {
 		expect(typeof value).toBe("string");
 	}
-	expect(String(tokens.getJWTInfo().userId)).toBe(String(user.id));
+	expect(String(tokens.getJWTInfo().userId)).toBe(String(user._id));
 	expect(tokens.getJWTInfo().exp).toBeGreaterThan(Date.now() / 1000);
 	const currentDateWithExpirationTime = Date.now() / 1000 + 900;
 	expect(tokens.getJWTInfo().exp).toBeLessThanOrEqual(
 		currentDateWithExpirationTime
 	);
+	// RESULT: new user and tokens have been saved into DB
+	const db = new DBUsers();
+	const userInDb = (await db.getUsersInfo([new ObjectId(tokens.user)]))[0];
+	expect(String(userInDb._id)).toBe(tokens.user);
+	expect(userInDb.login).toBe(user.login);
+	expect(userInDb.tokenDocument[0].access_token).toBe(tokens.access_token);
+	expect(userInDb.tokenDocument[0].refresh_token).toBe(tokens.refresh_token);
+	expect(String(userInDb.tokenDocument[0].user)).toBe(String(userInDb._id));
+	// RESULT: password have been saved as hash into DB
+	const comparePasswords = bcrypt.compareSync(user.password, userInDb.password);
+	expect(comparePasswords).toBe(true);
+	// RESULT: user have been saved with no admin access by default
+	expect(userInDb.is_admin).toBe(false);
 });

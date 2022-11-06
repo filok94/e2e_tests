@@ -5,7 +5,7 @@ import { generator } from "../helpers/generator";
 const { randomString } = generator();
 
 export class User {
-	id: ObjectId;
+	_id: ObjectId;
 	constructor(
 		public login: string | null = null,
 		public password: string | null = null,
@@ -13,7 +13,7 @@ export class User {
 	) {
 		this.login = login ? login : randomString();
 		this.password = password ? password : randomString();
-		this.id = null;
+		this._id = null;
 	}
 
 	getAuthJson = () => {
@@ -25,5 +25,5 @@ export class User {
 
 	getHashPassword = async () => await bcrypt.hash(this.password, 12);
 
-	setId = (id: ObjectId) => (this.id = id);
+	setId = (id: ObjectId) => (this._id = id);
 }

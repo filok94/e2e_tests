@@ -14,7 +14,7 @@ class DBBase {
 		this.tokenCollection = this.db.collection<Tokens>("tokens");
 	}
 }
-
+type UserWithTokens = User & { tokenDocument: Tokens[] };
 export class DBUsers extends DBBase {
 	async addUsers(users: User[]) {
 		try {
@@ -57,9 +57,41 @@ export class DBUsers extends DBBase {
 		}
 	}
 
-	async deleteTokens(userIds: ObjectId[]) {
+	async updatedUserToken(data: {
+		user: ObjectId | User;
+		accessToken: string;
+		refreshToken: string;
+	}) {
 		try {
-			await this.tokenCollection.deleteMany({ _id: { $in: userIds } });
+			const userId = data.user instanceof User ? data.user._id : data.user;
+			await this.tokenCollection.updateOne(
+				{ user: userId },
+				{
+					$set: {
+						access_token: data.accessToken,
+						refresh_token: data.refreshToken,
+					},
+				},
+				{ upsert: false }
+			);
+		} catch (e) {
+			console.log(e);
+		}
+	}
+
+	async getUsersInfo(userIds: ObjectId[]): Promise<Array<UserWithTokens>> {
+		try {
+			const foundedUsers = await this.usersCollection
+				.aggregate<UserWithTokens>()
+				.match({ _id: { $in: userIds } })
+				.lookup({
+					from: "tokens",
+					localField: "_id",
+					foreignField: "user",
+					as: "tokenDocument",
+				})
+				.toArray();
+			return foundedUsers;
 		} catch (e) {
 			console.log(e);
 		} finally {

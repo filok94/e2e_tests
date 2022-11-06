@@ -1,4 +1,4 @@
-import { verify } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 
 export class Tokens {
@@ -18,5 +18,11 @@ export class Tokens {
 			process.env.SECRER_JWT
 		) as { iat: number; exp: number; userId: string };
 		return infoFromAccess;
+	};
+
+	createSignJWTToken = (expiresIn: string) => {
+		return sign({ userId: this.user }, process.env.SECRER_JWT, {
+			expiresIn,
+		});
 	};
 }

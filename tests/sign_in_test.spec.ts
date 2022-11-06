@@ -1,5 +1,6 @@
 import { expect, test } from "../api/api.auth";
 import { generator } from "../helpers/generator";
+import { DBUsers } from "./../db/db_users";
 import { ExceptionStrings } from "./../helpers/exception_strings";
 import { Tokens } from "./../models/tokens";
 
@@ -34,7 +35,7 @@ test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 	// RESULT: 400
 	let json = await response.json();
 	expect(response.status()).toBe(400);
-	expect(json.message[0]).toBe(ExceptionStrings.PASSWORD_MUST_BE_LONGER);
+	expect(json.message[0]).toBe(ExceptionStrings.MUST_BE_LONGER("password", 8));
 
 	// STEP: password length > 255
 	response = await apiAuth.signIn({
@@ -44,7 +45,9 @@ test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 	// RESULT: 400
 	json = await response.json();
 	expect(response.status()).toBe(400);
-	expect(json.message[0]).toBe(ExceptionStrings.PASSWORD_MUST_BE_SHORTER);
+	expect(json.message[0]).toBe(
+		ExceptionStrings.MUST_BE_SHORTER("password", 255)
+	);
 
 	// STEP: login length < 6
 	response = await apiAuth.signIn({
@@ -54,7 +57,7 @@ test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 	// RESULT: 400
 	json = await response.json();
 	expect(response.status()).toBe(400);
-	expect(json.message[0]).toBe(ExceptionStrings.LOGIN_MUST_BE_LONGER);
+	expect(json.message[0]).toBe(ExceptionStrings.MUST_BE_LONGER("login", 6));
 
 	// STEP: login length > 20
 	response = await apiAuth.signIn({
@@ -64,7 +67,7 @@ test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 	// RESULT: 400
 	json = await response.json();
 	expect(response.status()).toBe(400);
-	expect(json.message[0]).toBe(ExceptionStrings.LOGIN_MUST_BE_SHORTER);
+	expect(json.message[0]).toBe(ExceptionStrings.MUST_BE_SHORTER("login", 20));
 
 	// STEP: login not string type values
 	const badValues = [null, 1, true, { login: "login" }, ["login"]];
@@ -76,7 +79,7 @@ test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 		// RESULT: 400
 		json = await response.json();
 		expect(response.status()).toBe(400);
-		expect(json.message[0]).toBe(ExceptionStrings.LOGIN_MUST_BE_A_STRING);
+		expect(json.message[0]).toBe(ExceptionStrings.MUST_BE_A_STRING("login"));
 	}
 
 	// STEP: password not string type values
@@ -88,17 +91,17 @@ test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 		// RESULT: 400
 		json = await response.json();
 		expect(response.status()).toBe(400);
-		expect(json.message[0]).toBe(ExceptionStrings.PASSWORD_MUST_BE_A_STRING);
+		expect(json.message[0]).toBe(ExceptionStrings.MUST_BE_A_STRING("password"));
 	}
 
 	//STEP: no password given
 	response = await apiAuth.signIn({ login: user.login });
 	//RESULT: 400
 	const validatePasswordStrings = [
-		ExceptionStrings.PASSWORD_MUST_BE_LONGER,
-		ExceptionStrings.PASSWORD_MUST_BE_SHORTER,
-		ExceptionStrings.PASSWORD_MUST_BE_A_STRING,
-		ExceptionStrings.PASSWORD_SHOULD_NOT_BE_EMPTY,
+		ExceptionStrings.MUST_BE_LONGER("password", 8),
+		ExceptionStrings.MUST_BE_SHORTER("password", 255),
+		ExceptionStrings.MUST_BE_A_STRING("password"),
+		ExceptionStrings.SHOULD_NOT_BE_EMPTY("password"),
 	];
 	json = await response.json();
 	expect(response.status()).toBe(400);
@@ -108,10 +111,10 @@ test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 	response = await apiAuth.signIn({ password: user.password });
 	//RESULT: 400
 	const validateLoginStrings = [
-		ExceptionStrings.LOGIN_MUST_BE_LONGER,
-		ExceptionStrings.LOGIN_MUST_BE_SHORTER,
-		ExceptionStrings.LOGIN_MUST_BE_A_STRING,
-		ExceptionStrings.LOGIN_SHOULD_NOT_BE_EMPTY,
+		ExceptionStrings.MUST_BE_LONGER("login", 6),
+		ExceptionStrings.MUST_BE_SHORTER("login", 20),
+		ExceptionStrings.MUST_BE_A_STRING("login"),
+		ExceptionStrings.SHOULD_NOT_BE_EMPTY("login"),
 	];
 	json = await response.json();
 	expect(response.status()).toBe(400);
@@ -127,7 +130,7 @@ test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 	json = await response.json();
 	expect(response.status()).toBe(400);
 	expect(json.message[0]).toBe(
-		ExceptionStrings.PROPERTY_SHOULD_NOT_EXIST("extra_field")
+		ExceptionStrings.SHOULD_NOT_EXIST("extra_field")
 	);
 });
 
@@ -145,10 +148,16 @@ test("test sign_in", async ({ userCreation, apiAuth }) => {
 	for (let value of Object.values(json)) {
 		expect(typeof value).toBe("string");
 	}
-	expect(String(tokens.getJWTInfo().userId)).toBe(String(user.id));
+	expect(String(tokens.getJWTInfo().userId)).toBe(String(user._id));
 	expect(tokens.getJWTInfo().exp).toBeGreaterThan(Date.now() / 1000);
 	const currentDateWithExpirationTime = Date.now() / 1000 + 900;
 	expect(tokens.getJWTInfo().exp).toBeLessThanOrEqual(
 		currentDateWithExpirationTime
 	);
+	//RESULT: user tokens have been saved into DB
+	const db = new DBUsers();
+	const dbUserTokens = (await db.getUsersInfo([user._id]))[0].tokenDocument[0];
+	expect(dbUserTokens.access_token).toBe(tokens.access_token);
+	expect(dbUserTokens.refresh_token).toBe(tokens.refresh_token);
+	expect(String(dbUserTokens.user)).toBe(String(user._id));
 });
