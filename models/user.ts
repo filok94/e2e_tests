@@ -5,11 +5,11 @@ import { generator } from "../helpers/generator";
 const { randomString } = generator();
 
 export class User {
-	_id: ObjectId;
+	_id: ObjectId | null;
 	constructor(
 		public login: string | null = null,
 		public password: string | null = null,
-		public is_admin: boolean | null = null
+		public is_admin: boolean | null = null,
 	) {
 		this.login = login ? login : randomString();
 		this.password = password ? password : randomString();
@@ -22,8 +22,7 @@ export class User {
 			password: this.password,
 		});
 	};
-
-	getHashPassword = async () => await bcrypt.hash(this.password, 12);
+	getHashPassword = async () => this.password ? await bcrypt.hash(this.password, 12) : null;
 
 	setId = (id: ObjectId) => (this._id = id);
 }

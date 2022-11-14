@@ -14,7 +14,7 @@ type FxitureDeletion = {
 	deletion: User;
 };
 const test = base.extend<FxitureDeletion>({
-	deletion: async ({}, use) => {
+	deletion: async ({ }, use) => {
 		const user = new User();
 		const db = new DBUsers();
 		await use(user);
@@ -174,15 +174,20 @@ test("sign_up with new user", async ({ apiAuth, deletion }) => {
 	);
 	// RESULT: new user and tokens have been saved into DB
 	const db = new DBUsers();
-	const userInDb = (await db.getUsersInfo([new ObjectId(tokens.user)]))[0];
-	expect(String(userInDb._id)).toBe(tokens.user);
-	expect(userInDb.login).toBe(user.login);
-	expect(userInDb.tokenDocument[0].access_token).toBe(tokens.access_token);
-	expect(userInDb.tokenDocument[0].refresh_token).toBe(tokens.refresh_token);
-	expect(String(userInDb.tokenDocument[0].user)).toBe(String(userInDb._id));
-	// RESULT: password have been saved as hash into DB
-	const comparePasswords = bcrypt.compareSync(user.password, userInDb.password);
-	expect(comparePasswords).toBe(true);
-	// RESULT: user have been saved with no admin access by default
-	expect(userInDb.is_admin).toBe(false);
+	const usersInDb = await db.getUsersInfo(([new ObjectId(tokens.user)]))
+	if (usersInDb) {
+		const userInDb = usersInDb[0];
+		expect(String(userInDb._id)).toBe(tokens.user);
+		expect(userInDb.login).toBe(user.login);
+		expect(userInDb.tokenDocument[0].access_token).toBe(tokens.access_token);
+		expect(userInDb.tokenDocument[0].refresh_token).toBe(tokens.refresh_token);
+		expect(String(userInDb.tokenDocument[0].user)).toBe(String(userInDb._id));
+		// RESULT: password have been saved as hash into DB
+		const comparePasswords = bcrypt.compareSync(String(user.password), String(userInDb.password));
+		expect(comparePasswords).toBe(true);
+		// RESULT: user have been saved with no admin access by default
+		expect(userInDb.is_admin).toBe(false);
+	} else {
+		expect(1, "usersInDb is falsy, something wrong").toBeFalsy()
+	}
 });

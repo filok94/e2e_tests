@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { expect, test } from "../api/api.auth";
 import { generator } from "../helpers/generator";
 import { DBUsers } from "./../db/db_users";
@@ -14,7 +15,7 @@ test("test refresh_token with expired token", async ({
 		login: user.login,
 		password: user.password,
 	});
-	let json: Tokens = await signInResponse.json();
+	const json: Tokens = await signInResponse.json();
 	const tokens = new Tokens(json.access_token, json.refresh_token, json.user);
 
 	//STEP: create expired refresh_token for the existing user
@@ -59,14 +60,14 @@ test("test validation refresh_token", async ({ apiAuth, userCreation }) => {
 		].sort()
 	);
 	//STEP: request with bad types, not JWT
-	for (let badType of [
+	for (const badType of [
 		1,
 		[1],
 		{ refresh_token: refreshToken },
 		randomString(40),
 	]) {
-		let res = await apiAuth.refreshTokens({ refresh_token: badType });
-		let json: { message: string[] } = await res.json();
+		const res = await apiAuth.refreshTokens({ refresh_token: badType });
+		const json: { message: string[] } = await res.json();
 		//RESULT: 400
 		expect(res.status()).toBe(400);
 		expect(json.message).toContain(
@@ -97,8 +98,14 @@ test("test refresh_token and get tokens info", async ({
 	expect(json).toHaveProperty("refresh_token");
 	expect(json).toHaveProperty("user");
 	//RESULT: new tokens have been saved into DB
-	const dbUserTokens = (await db.getUsersInfo([user._id]))[0].tokenDocument[0];
-	expect(dbUserTokens.access_token).toBe(json.access_token);
-	expect(dbUserTokens.refresh_token).toBe(json.refresh_token);
-	expect(String(dbUserTokens.user)).toBe(String(json.user));
+	const usersInfo = await db.getUsersInfo([user._id as ObjectId]);
+	if (usersInfo) {
+		const dbUserTokens = usersInfo[0].tokenDocument[0];
+		expect(dbUserTokens.access_token).toBe(json.access_token);
+		expect(dbUserTokens.refresh_token).toBe(json.refresh_token);
+		expect(String(dbUserTokens.user)).toBe(String(json.user));
+	} else {
+		expect(1, "usersInfo is falsy, something wrong").toBeFalsy()
+	}
 });
+

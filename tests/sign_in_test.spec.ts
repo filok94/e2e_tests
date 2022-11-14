@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { expect, test } from "../api/api.auth";
 import { generator } from "../helpers/generator";
 import { DBUsers } from "./../db/db_users";
@@ -9,7 +10,7 @@ test("test sign_in with wrong credentials", async ({
 	apiAuth,
 }) => {
 	const [user] = userCreation;
-	for (let data of [
+	for (const data of [
 		{ login: user.login, password: `${user.password}-wrong` },
 		{ login: `${user.login}-wrong`, password: user.password },
 	]) {
@@ -71,7 +72,7 @@ test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 
 	// STEP: login not string type values
 	const badValues = [null, 1, true, { login: "login" }, ["login"]];
-	for (let badValue of badValues) {
+	for (const badValue of badValues) {
 		response = await apiAuth.signIn({
 			login: badValue,
 			password: user.password,
@@ -83,7 +84,7 @@ test("test sign_in validation", async ({ userCreation, apiAuth }) => {
 	}
 
 	// STEP: password not string type values
-	for (let badValue of badValues) {
+	for (const badValue of badValues) {
 		response = await apiAuth.signIn({
 			login: user.login,
 			password: badValue,
@@ -145,7 +146,7 @@ test("test sign_in", async ({ userCreation, apiAuth }) => {
 	const json: Tokens = await response.json();
 	const tokens = new Tokens(json.access_token, json.refresh_token, json.user);
 	expect(response.status()).toBe(200);
-	for (let value of Object.values(json)) {
+	for (const value of Object.values(json)) {
 		expect(typeof value).toBe("string");
 	}
 	expect(String(tokens.getJWTInfo().userId)).toBe(String(user._id));
@@ -156,8 +157,13 @@ test("test sign_in", async ({ userCreation, apiAuth }) => {
 	);
 	//RESULT: user tokens have been saved into DB
 	const db = new DBUsers();
-	const dbUserTokens = (await db.getUsersInfo([user._id]))[0].tokenDocument[0];
-	expect(dbUserTokens.access_token).toBe(tokens.access_token);
-	expect(dbUserTokens.refresh_token).toBe(tokens.refresh_token);
-	expect(String(dbUserTokens.user)).toBe(String(user._id));
+	const dbUsers = await db.getUsersInfo([user._id as ObjectId])
+	if (dbUsers) {
+		const dbUserTokens = dbUsers[0].tokenDocument[0];
+		expect(dbUserTokens.access_token).toBe(tokens.access_token);
+		expect(dbUserTokens.refresh_token).toBe(tokens.refresh_token);
+		expect(String(dbUserTokens.user)).toBe(String(user._id));
+	} else {
+		expect(1, "dbUsers is falsy, something wrong").toBeFalsy()
+	}
 });

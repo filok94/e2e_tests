@@ -2,8 +2,8 @@ import { APIRequestContext, APIResponse } from "@playwright/test";
 import { expect, test as base } from "../tests/main_fixtures";
 
 export const AUTH_URLS = {
-	signIn: `auth/sign_in`,
-	signUp: `auth/sign_up`,
+	signIn: "auth/sign_in",
+	signUp: "auth/sign_up",
 	refreshTokens: "auth/refresh_tokens",
 } as const;
 // eslint-disable-next-line no-redeclare
@@ -35,7 +35,7 @@ class ApiAuth {
 	}
 
 	async refreshTokens(
-		data: { refresh_token: string } | Object
+		data: { refresh_token: string } | object
 	): Promise<APIResponse> {
 		return await this.request.post(AUTH_URLS.refreshTokens, { data });
 	}

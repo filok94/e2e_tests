@@ -7,7 +7,7 @@ type MyFixtures = {
 };
 
 export const test = base.extend<MyFixtures>({
-	userCreation: async ({}, use) => {
+	userCreation: async ({ }, use) => {
 		const { randomString } = generator();
 		const mainUser = new User(
 			`autoqa-${randomString(5)}`,
@@ -24,8 +24,10 @@ export const test = base.extend<MyFixtures>({
 		);
 		// pass here setup fixture
 		const ids = await new DBUsers().addUsers([mainUser, adminUser]);
-		mainUser.setId(ids[0]);
-		adminUser.setId(ids[1]);
+		if (ids && ids[0] && ids[1]) {
+			mainUser.setId(ids[0]);
+			adminUser.setId(ids[1]);
+		}
 
 		console.log("testing...");
 		await use([mainUser]);
