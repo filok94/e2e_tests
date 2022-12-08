@@ -1,22 +1,11 @@
-import { Collection, Db, Filter, MongoClient, ObjectId } from "mongodb";
+import { Filter, ObjectId } from "mongodb";
 import { Tokens } from "./../models/tokens";
 import { User } from "./../models/user";
+import { DBBase } from "./db_base";
 
-class DBBase {
-	public db: Db;
-	public usersCollection: Collection<User>;
-	public tokenCollection: Collection<Tokens>;
-	public client: MongoClient;
-	constructor() {
-		this.client = new MongoClient(String(process.env.DB_URI));
-		this.db = this.client.db(process.env.DB_NAME);
-		this.usersCollection = this.db.collection<User>("users");
-		this.tokenCollection = this.db.collection<Tokens>("tokens");
-	}
-}
 type UserWithTokens = User & { tokenDocument: Tokens[] };
 export class DBUsers extends DBBase {
-	async addUsers(users: User[]) {
+	async addUsers (users: User[]) {
 		try {
 			const usersIntoDb: User[] = [];
 			for (const user of users) {
@@ -26,68 +15,97 @@ export class DBUsers extends DBBase {
 			}
 			const createdUsers = await this.usersCollection.insertMany(usersIntoDb);
 			return Object.values(createdUsers.insertedIds);
-		} catch (e) {
+		}
+		catch (e) {
 			console.log(e);
-		} finally {
+		}
+		finally {
 			await this.client.close();
 		}
 	}
-	async deleteUsers(users: User[] | ObjectId[]) {
+	async deleteUsers (users: User[] | ObjectId[]) {
 		try {
 			const usersDeleteFilter: Filter<User> =
 				users[0] instanceof User
 					? {
-						login: { $in: (users as User[]).map((e) => e.login) },
+						login: {
+							$in: (users as User[]).map((e) => e.login)
+						},
 					}
-					: { _id: { $in: users as ObjectId[] } };
+					: {
+						_id: {
+							$in: users as ObjectId[]
+						}
+					};
 			let tokensDeleteFilter: Filter<Tokens> | null = null;
 			if (users[0] instanceof User) {
 				const idsToDelete = await this.usersCollection
 					.find(usersDeleteFilter)
 					.toArray();
-				tokensDeleteFilter = { user: { $in: (idsToDelete.map((e) => (e._id as ObjectId))) } };
-			} else {
-				tokensDeleteFilter = { user: { $in: users as ObjectId[] } };
+				tokensDeleteFilter = {
+					user: {
+						$in: (idsToDelete.map((e) => (e._id as ObjectId)))
+					}
+				};
+			}
+			else {
+				tokensDeleteFilter = {
+					user: {
+						$in: users as ObjectId[]
+					}
+				};
 			}
 			if (tokensDeleteFilter) {
 				await this.tokenCollection.deleteMany(tokensDeleteFilter);
 			}
 			await this.usersCollection.deleteMany(usersDeleteFilter);
-		} catch (e) {
+		}
+		catch (e) {
 			console.log(e);
-		} finally {
+		}
+		finally {
 			await this.client.close();
 		}
 	}
 
-	async updatedUserToken(data: {
+	async updatedUserToken (data: {
 		user: ObjectId | User | null;
 		accessToken: string;
 		refreshToken: string;
 	}) {
 		try {
 			const userId = data.user instanceof User ? data.user._id : data.user;
-			if (userId)
+			if (userId) {
 				await this.tokenCollection.updateOne(
-					{ user: userId },
+					{
+						user: userId
+					},
 					{
 						$set: {
 							access_token: data.accessToken,
 							refresh_token: data.refreshToken,
 						},
 					},
-					{ upsert: false }
+					{
+						upsert: false
+					}
 				);
-		} catch (e) {
+			}
+		}
+		catch (e) {
 			console.log(e);
 		}
 	}
 
-	async getUsersInfo(userIds: ObjectId[]): Promise<Array<UserWithTokens> | undefined> {
+	async getUsersInfo (userIds: ObjectId[]): Promise<Array<UserWithTokens> | undefined> {
 		try {
 			const foundedUsers = await this.usersCollection
 				.aggregate<UserWithTokens>()
-				.match({ _id: { $in: userIds } })
+				.match({
+					_id: {
+						$in: userIds
+					}
+				})
 				.lookup({
 					from: "tokens",
 					localField: "_id",
@@ -96,9 +114,11 @@ export class DBUsers extends DBBase {
 				})
 				.toArray();
 			return foundedUsers;
-		} catch (e) {
+		}
+		catch (e) {
 			console.log(e);
-		} finally {
+		}
+		finally {
 			await this.client.close();
 		}
 	}

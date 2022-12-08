@@ -2,7 +2,7 @@
 	"compileOnSave": true,
 	"extends": "@tsconfig/recommended/tsconfig.json",
   "compilerOptions": {
-    "target": "ES2015",
+    "target": "ES2017",
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,

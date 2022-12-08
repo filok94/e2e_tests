@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { expect, test } from "../api/api.auth";
+import { expect, test } from "../fixtures/api.fixture";
 import { generator } from "../helpers/generator";
 import { DBUsers } from "./../db/db_users";
 import { ExceptionStrings } from "./../helpers/exception_strings";
@@ -23,12 +23,14 @@ test("test refresh_token with expired token", async ({
 	const db = new DBUsers();
 	await db.updatedUserToken({
 		user: user._id,
-		accessToken: tokens.access_token,
+		accessToken: String(tokens.access_token),
 		refreshToken: expiredToken,
 	});
 
 	//STEP: request refresh_token with expired token
-	const res = await apiAuth.refreshTokens({ refresh_token: expiredToken });
+	const res = await apiAuth.refreshTokens({
+		refresh_token: expiredToken 
+	});
 	const jsonRefresh: { message: string } = await res.json();
 
 	//RESULT: 401 token expired
@@ -41,7 +43,9 @@ test("test validation refresh_token", async ({ apiAuth, userCreation }) => {
 	const { randomString } = generator();
 	const refreshToken: string = (
 		await (
-			await apiAuth.signIn({ login: user.login, password: user.password })
+			await apiAuth.signIn({
+				login: user.login, password: user.password 
+			})
 		).json()
 	).refresh_token;
 	// STEP: request with extra field and no refresh_token field
@@ -55,7 +59,9 @@ test("test validation refresh_token", async ({ apiAuth, userCreation }) => {
 	expect(res.status()).toBe(400);
 	expect(json.message.sort()).toEqual(
 		[
-			ExceptionStrings.SHOULD_NOT_EXIST(Object.keys({ extra_field })[0]),
+			ExceptionStrings.SHOULD_NOT_EXIST(Object.keys({
+				extra_field 
+			})[0]),
 			ExceptionStrings.MUST_BE_A_JWT("refresh_token"),
 		].sort()
 	);
@@ -63,10 +69,14 @@ test("test validation refresh_token", async ({ apiAuth, userCreation }) => {
 	for (const badType of [
 		1,
 		[1],
-		{ refresh_token: refreshToken },
+		{
+			refresh_token: refreshToken 
+		},
 		randomString(40),
 	]) {
-		const res = await apiAuth.refreshTokens({ refresh_token: badType });
+		const res = await apiAuth.refreshTokens({
+			refresh_token: badType 
+		});
 		const json: { message: string[] } = await res.json();
 		//RESULT: 400
 		expect(res.status()).toBe(400);
@@ -99,13 +109,15 @@ test("test refresh_token and get tokens info", async ({
 	expect(json).toHaveProperty("user");
 	//RESULT: new tokens have been saved into DB
 	const usersInfo = await db.getUsersInfo([user._id as ObjectId]);
+	// eslint-disable-next-line playwright/no-conditional-in-test
 	if (usersInfo) {
 		const dbUserTokens = usersInfo[0].tokenDocument[0];
 		expect(dbUserTokens.access_token).toBe(json.access_token);
 		expect(dbUserTokens.refresh_token).toBe(json.refresh_token);
 		expect(String(dbUserTokens.user)).toBe(String(json.user));
-	} else {
-		expect(1, "usersInfo is falsy, something wrong").toBeFalsy()
+	}
+	else {
+		expect(1, "usersInfo is falsy, something wrong").toBeFalsy();
 	}
 });
 

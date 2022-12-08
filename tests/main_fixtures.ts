@@ -10,17 +10,17 @@ export const test = base.extend<MyFixtures>({
 	userCreation: async ({ }, use) => {
 		const { randomString } = generator();
 		const mainUser = new User(
-			`autoqa-${randomString(5)}`,
-			`autoqa-${randomString(5)}`,
+			`autoqa-${ randomString(5) }`,
+			`autoqa-${ randomString(5) }`,
 			false
 		);
 		const adminUser = new User(
-			`autoqa-admin-${randomString(5)}`,
-			`autoqa-admin-${randomString(5)}`,
+			`autoqa-admin-${ randomString(5) }`,
+			`autoqa-admin-${ randomString(5) }`,
 			true
 		);
 		console.log(
-			`creating users...\n\tadmin: ${adminUser.login},\n\tmain: ${mainUser.login}`
+			`creating users...\n\tadmin: ${ adminUser.login },\n\tmain: ${ mainUser.login }`
 		);
 		// pass here setup fixture
 		const ids = await new DBUsers().addUsers([mainUser, adminUser]);

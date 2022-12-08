@@ -16,15 +16,15 @@ export class ExceptionStrings {
 	static WRONG_GAME_ID = "wrong game id";
 	static CANNOT_FIND_RESULTS = "user have no results on this game";
 	static MUST_BE_LONGER = (property: string, longerThan: number) =>
-		`${property} must be longer than or equal to ${longerThan} characters`;
+		`${ property } must be longer than or equal to ${ longerThan } characters`;
 	static MUST_BE_SHORTER = (property: string, shorterThan: number) =>
-		`${property} must be shorter than or equal to ${shorterThan} characters`;
+		`${ property } must be shorter than or equal to ${ shorterThan } characters`;
 	static SHOULD_NOT_EXIST = (property: string) =>
-		`property ${property} should not exist`;
+		`property ${ property } should not exist`;
 	static SHOULD_NOT_BE_EMPTY = (property: string) =>
-		`${property} should not be empty`;
+		`${ property } should not be empty`;
 	static MUST_BE_A_STRING = (property: string) =>
-		`${property} must be a string`;
+		`${ property } must be a string`;
 	static MUST_BE_A_JWT = (property: string) =>
-		`${property} must be a jwt string`;
+		`${ property } must be a jwt string`;
 }

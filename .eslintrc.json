@@ -11,14 +11,71 @@
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"ecmaVersion": "latest",
-		"sourceType": "module"
+		"sourceType": "module",
+		"project": [
+			"./tsconfig.json"
+		]
 	},
-	"plugins": ["@typescript-eslint"],
+	"plugins": [
+		"@typescript-eslint",
+		"playwright"
+	],
 	"rules": {
-		"indent": ["error", "tab"],
-		"linebreak-style": ["error", "unix"],
-		"quotes": ["error", "double"],
-		"semi": ["error", "always"],
-		"playwright-test/no-conditional-in-test": false
+		"indent": [
+			"error",
+			"tab"
+		],
+		"linebreak-style": [
+			"error",
+			"unix"
+		],
+		"quotes": [
+			"error",
+			"double"
+		],
+		"semi": [
+			"error",
+			"always"
+		],
+		"playwright-test/no-conditional-in-test": 0,
+		"array-bracket-spacing": "warn",
+		"curly": "warn",
+		"object-curly-spacing": [
+			"warn",
+			"always"
+		],
+		"space-before-function-paren": "warn",
+		"arrow-spacing": "warn",
+		"object-curly-newline": [
+			"warn",
+			{
+				"ObjectExpression": "always",
+				"ObjectPattern": {
+					"multiline": true
+				},
+				"ImportDeclaration": "never",
+				"ExportDeclaration": {
+					"multiline": true,
+					"minProperties": 3
+				}
+			}
+		],
+		"template-curly-spacing": [
+			"warn",
+			"always"
+		],
+		"brace-style": [
+			"warn",
+			"stroustrup"
+		],
+		"no-multiple-empty-lines": [
+			"warn",
+			{
+				"max": 1
+			}
+		],
+		"no-whitespace-before-property": [
+			"warn"
+		]
 	}
 }

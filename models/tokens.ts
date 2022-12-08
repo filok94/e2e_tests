@@ -2,10 +2,10 @@ import { sign, verify } from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 
 export class Tokens {
-	constructor(
-		public access_token: string = null,
-		public refresh_token: string = null,
-		public user: ObjectId | string = null
+	constructor (
+		public access_token: string | null = null,
+		public refresh_token: string | null = null,
+		public user: ObjectId | string | null = null
 	) {
 		this.access_token = access_token;
 		this.refresh_token = refresh_token;
@@ -14,14 +14,16 @@ export class Tokens {
 
 	getJWTInfo = (): { iat: number; exp: number; userId: string } => {
 		const infoFromAccess = verify(
-			this.access_token,
+			String(this.access_token),
 			process.env.SECRER_JWT
 		) as { iat: number; exp: number; userId: string };
 		return infoFromAccess;
 	};
 
 	createSignJWTToken = (expiresIn: string) => {
-		return sign({ userId: this.user }, process.env.SECRER_JWT, {
+		return sign({
+			userId: this.user 
+		}, process.env.SECRER_JWT, {
 			expiresIn,
 		});
 	};

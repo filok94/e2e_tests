@@ -6,7 +6,7 @@ const { randomString } = generator();
 
 export class User {
 	_id: ObjectId | null;
-	constructor(
+	constructor (
 		public login: string | null = null,
 		public password: string | null = null,
 		public is_admin: boolean | null = null,
@@ -17,10 +17,10 @@ export class User {
 	}
 
 	getAuthJson = () => {
-		return JSON.stringify({
+		return {
 			login: this.login,
 			password: this.password,
-		});
+		};
 	};
 	getHashPassword = async () => this.password ? await bcrypt.hash(this.password, 12) : null;
 

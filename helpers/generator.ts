@@ -1,4 +1,4 @@
-export function generator() {
+export function generator () {
 	const randomString = (length = 10): string => {
 		let result = "";
 		const characters =
@@ -9,5 +9,7 @@ export function generator() {
 		}
 		return result;
 	};
-	return { randomString };
+	return {
+		randomString
+	};
 }
