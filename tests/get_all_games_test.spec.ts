@@ -46,15 +46,14 @@ test.describe("tests get all games", async () => {
 		}
 		//RESULT: first game is as in the db
 		const db = new DBGames();
-		const dbGame = await db.getGameById(String(resJson[0]._id));
+		const dbGame = await db.getGameByTitle(String(resJson[0].title));
 		expect(dbGame?.title).toBe(resJson[0].title);
 		expect(dbGame?.description).toBe(resJson[0].description);
 		expect(dbGame?.link).toBe(resJson[0].link);
-		for (const person in resJson[0].persons) {
-			const dbPerson: string = (dbGame?.persons as any[]).find((e) => e == person);
-			expect(dbPerson).toBe(person);
+		for (const person of resJson[0].persons) {
+			const dbPerson: string | undefined = (dbGame?.persons as Array<string | undefined>).find((e) => e == person);
+			expect(String(dbPerson)).toBe(person);
 		}
-
 	});
-
+	
 });
