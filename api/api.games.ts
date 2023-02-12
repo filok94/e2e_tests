@@ -1,4 +1,5 @@
 import { APIRequestContext } from "@playwright/test";
+import { Game } from "../models/game";
 
 export const GAMES_URLS = {
 	getAll: "games",
@@ -30,5 +31,8 @@ export class ApiGames {
 			});
 		}
 		return await this.request.get(GAMES_URLS.getById(params.id));
+	}
+	async createGame (params: {game: Game}) {
+		return await null;
 	}
 }

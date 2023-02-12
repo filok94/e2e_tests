@@ -1,91 +1,21 @@
 {
-	"env": {
-		"browser": true,
-		"es2021": true
-	},
-	"extends": [
-		"eslint:recommended",
-		"plugin:@typescript-eslint/recommended",
-		"plugin:playwright/playwright-test"
-	],
-	"parser": "@typescript-eslint/parser",
-	"parserOptions": {
-		"ecmaVersion": "latest",
-		"sourceType": "module",
-		"project": [
-			"./tsconfig.json"
-		]
-	},
-	"plugins": [
-		"@typescript-eslint",
-		"playwright"
-	],
-	"rules": {
-		"indent": [
-			"error",
-			"tab"
-		],
-		"linebreak-style": [
-			"error",
-			"unix"
-		],
-		"quotes": [
-			"error",
-			"double"
-		],
-		"semi": [
-			"error",
-			"always"
-		],
-		"playwright-test/no-conditional-in-test": 0,
-		"array-bracket-spacing": "warn",
-		"curly": "warn",
-		"object-curly-spacing": [
-			"warn",
-			"always"
-		],
-		"space-before-function-paren": "warn",
-		"arrow-spacing": "warn",
-		"object-curly-newline": [
-			"warn",
-			{
-				"ObjectExpression": "always",
-				"ObjectPattern": {
-					"multiline": true
-				},
-				"ImportDeclaration": "never",
-				"ExportDeclaration": {
-					"multiline": true,
-					"minProperties": 3
-				}
-			}
-		],
-		"template-curly-spacing": [
-			"warn",
-			"always"
-		],
-		"brace-style": [
-			"warn",
-			"stroustrup"
-		],
-		"no-multiple-empty-lines": [
-			"warn",
-			{
-				"max": 1,
-				"maxEOF": 0
-			}
-		],
-		"no-whitespace-before-property": [
-			"warn"
-		],
-		"eol-last": ["warn", "always"],
-
-		"comma-dangle": ["warn", {
-			"arrays": "only-multiline",
-			"objects": "only-multiline",
-			"imports": "never",
-			"exports": "never",
-			"functions": "never"
-	}]
-	}
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": [
+        "standard"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "no-empty-pattern": 0,
+        "no-tabs": 0
+    }
 }

@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { ObjectId } from 'mongodb'
 
 interface TestData {
   index: number,
@@ -8,15 +8,14 @@ interface TestData {
 }
 
 export class Game {
-	_id: ObjectId | null;
-	constructor (    public title: string,
-    public description: string,
-    public link: string,
+  _id: ObjectId | null
+  constructor (
+		public title: string,
+		public description: string,
+		public link: string,
 		public persons: string[] | ObjectId[],
-		public test_data: TestData[]
-	){
-		this._id = null;
-		this.title = title;
-		this.description = description;
-	}
+		public testData: TestData[]
+  ) {
+    this._id = null
+  }
 }
