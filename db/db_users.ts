@@ -27,32 +27,14 @@ export class DBUsers extends DBBase {
     try {
       const usersDeleteFilter: Filter<User> =
 				users[0] instanceof User
-				  ? {
-				  login: {
-				    $in: (users as User[]).map((e) => e.login)
-				      }
-				    }
-				  : {
-				      _id: {
-				        $in: users as ObjectId[]
-				      }
-				    }
+				  ? { login: { $in: (users as User[]).map((e) => e.login) } }
+				  : { _id: { $in: users as ObjectId[] } }
       let tokensDeleteFilter: Filter<Tokens> | null = null
       if (users[0] instanceof User) {
-        const idsToDelete = await this.usersCollection
-          .find(usersDeleteFilter)
-          .toArray()
-        tokensDeleteFilter = {
-          user: {
-            $in: (idsToDelete.map((e) => (e._id as ObjectId)))
-          }
-        }
+        const idsToDelete = await this.usersCollection.find(usersDeleteFilter).toArray()
+        tokensDeleteFilter = { user: { $in: (idsToDelete.map((e) => (e._id as ObjectId))) } }
       } else {
-        tokensDeleteFilter = {
-          user: {
-            $in: users as ObjectId[]
-          }
-        }
+        tokensDeleteFilter = { user: { $in: users as ObjectId[] } }
       }
       if (tokensDeleteFilter) {
         await this.tokenCollection.deleteMany(tokensDeleteFilter)
@@ -73,19 +55,9 @@ export class DBUsers extends DBBase {
     try {
       const userId = data.user instanceof User ? data.user._id : data.user
       if (userId) {
-        await this.tokenCollection.updateOne(
-          {
-            user: userId
-          },
-          {
-            $set: {
-              access_token: data.accessToken,
-              refresh_token: data.refreshToken
-            }
-          },
-          {
-            upsert: false
-          }
+        await this.tokenCollection.updateOne({ user: userId },
+          { $set: { access_token: data.accessToken, refresh_token: data.refreshToken } },
+          { upsert: false }
         )
       }
     } catch (e) {
@@ -95,13 +67,8 @@ export class DBUsers extends DBBase {
 
   async getUsersInfo (userIds: ObjectId[]): Promise<Array<UserWithTokens> | undefined> {
     try {
-      const foundedUsers = await this.usersCollection
-        .aggregate<UserWithTokens>()
-        .match({
-          _id: {
-            $in: userIds
-          }
-        })
+      const foundedUsers = await this.usersCollection.aggregate<UserWithTokens>()
+        .match({ _id: { $in: userIds } })
         .lookup({
           from: 'tokens',
           localField: '_id',

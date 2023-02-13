@@ -9,7 +9,5 @@ export function generator () {
     }
     return result
   }
-  return {
-    randomString
-  }
+  return { randomString }
 }

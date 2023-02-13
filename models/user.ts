@@ -18,10 +18,7 @@ export class User {
   }
 
   getAuthJson = () => {
-    return {
-      login: this.login,
-      password: this.password
-    }
+    return { login: this.login, password: this.password }
   }
 
   getHashPassword = async () => this.password ? await bcrypt.hash(this.password, 12) : null

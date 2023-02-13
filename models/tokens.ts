@@ -22,10 +22,6 @@ export class Tokens {
   }
 
   createSignJWTToken = (expiresIn: string) => {
-    return sign({
-      userId: this.user
-    }, process.env.SECRER_JWT, {
-      expiresIn
-    })
+    return sign({ userId: this.user }, process.env.SECRER_JWT, { expiresIn })
   }
 }
