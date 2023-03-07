@@ -8,7 +8,8 @@ dotenv.config({
 const config: PlaywrightTestConfig = {
   use: {
     baseURL: process.env.BASE_URL,
-    trace: 'on-first-retry'
+    trace: 'retain-on-failure',
+    headless: false
   }
 }
 export default config

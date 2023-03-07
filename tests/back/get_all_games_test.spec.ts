@@ -1,6 +1,6 @@
-import { DBGames } from './../db/db_games'
-import { expect, test } from '../fixtures/api.fixture'
-import { Tokens } from '../models/tokens'
+import { DBGames } from '../../db/db_games'
+import { expect, test } from '../../fixtures/api.fixture'
+import { Tokens } from '../../models/tokens'
 
 test.describe('SUITE: tests get all games', async () => {
   test('TEST: test auth get_all_games', async ({ apiGames }) => {

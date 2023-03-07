@@ -1,10 +1,10 @@
 /* eslint-disable camelcase */
 import { ObjectId } from 'mongodb'
-import { expect, test } from '../fixtures/api.fixture'
-import { generator } from '../helpers/generator'
-import { DBUsers } from './../db/db_users'
-import { ExceptionStrings } from './../helpers/exception_strings'
-import { Tokens } from './../models/tokens'
+import { expect, test } from '../../fixtures/api.fixture'
+import { generator } from '../../helpers/generator'
+import { DBUsers } from '../../db/db_users'
+import { ExceptionStrings } from '../../helpers/exception_strings'
+import { Tokens } from '../../models/tokens'
 
 test.describe('SUITE: refresh_token tests', async () => {
   test('TEST: test refresh_token with expired token', async ({

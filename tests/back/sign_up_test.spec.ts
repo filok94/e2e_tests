@@ -1,12 +1,12 @@
 import * as bcrypt from 'bcrypt'
 import { ObjectId } from 'mongodb'
-import { expect, test as base } from '../fixtures/api.fixture'
-import { FxitureDeletion } from '../fixtures/test.fixtures'
-import { ExceptionStrings } from '../helpers/exception_strings'
-import { generator } from '../helpers/generator'
-import { Tokens } from '../models/tokens'
-import { User } from '../models/user'
-import { DBUsers } from './../db/db_users'
+import { expect, test as base } from '../../fixtures/api.fixture'
+import { FxitureDeletion } from '../../fixtures/test.fixtures'
+import { ExceptionStrings } from '../../helpers/exception_strings'
+import { generator } from '../../helpers/generator'
+import { Tokens } from '../../models/tokens'
+import { User } from '../../models/user'
+import { DBUsers } from '../../db/db_users'
 
 export type ServerError = {
 	message: string[];
