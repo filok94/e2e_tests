@@ -1,9 +1,9 @@
 import { ObjectId } from 'mongodb'
-import { expect, test } from '../fixtures/api.fixture'
-import { generator } from '../helpers/generator'
-import { DBUsers } from './../db/db_users'
-import { ExceptionStrings } from './../helpers/exception_strings'
-import { Tokens } from './../models/tokens'
+import { expect, test } from '../../fixtures/api.fixture'
+import { generator } from '../../helpers/generator'
+import { DBUsers } from '../../db/db_users'
+import { ExceptionStrings } from '../../helpers/exception_strings'
+import { Tokens } from '../../models/tokens'
 
 test.describe('SUITE: tests sign in', async () => {
   test('TEST: test sign_in with wrong credentials', async ({
