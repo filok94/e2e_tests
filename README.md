@@ -4,8 +4,8 @@ This is an api-testing repo for https://github.com/filok94/api_hand
 
 ## Description
 
-https://github.com/filok94/api_hand is node.js nest project with mongodb as database
-https://github.com/filok94/ownFront is vue3 project
+- https://github.com/filok94/api_hand is node.js nest project with mongodb as database
+- https://github.com/filok94/ownFront is vue project
 
 ## Getting Started
 
